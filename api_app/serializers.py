@@ -2,15 +2,7 @@ from .models import Movie
 from rest_framework import serializers
 
 
-class \
-        
-        
-        
-        
-        
-        
-        
-        MovieSerializer(serializers.Serializer):
+class MovieSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=64)
     description = serializers.CharField(max_length=200)
     active = serializers.BooleanField(default=True)
