@@ -1,47 +1,81 @@
 from django.shortcuts import render
-from .models import Movie
-from .serializers import MovieSerializer
+from .models import WatchList,StreamPlatform
+from .serializers import WatchListSerializer,StreamPlatformSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 # Create your views here.
 from rest_framework.views import APIView
 
+class StreamPlatformAV(APIView):
+
+    def get(self,request):
+        streams = StreamPlatform.objects.all()
+        serializer = StreamPlatformSerializer(streams, many=True)
+        return Response(serializer.data)
+
+    def post(self,request):
+        serializer = StreamPlatformSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
-class MovieList(APIView):
+class StreamPlatformDetail(APIView):
+    def get(self, request, id):
+        stream = StreamPlatform.objects.get(id=id)
+        serializer = StreamPlatformSerializer(stream)
+        return Response(serializer.data)
+
+    def put(self, request, id):
+        stream = StreamPlatform.objects.get(id=id)
+        serializer = StreamPlatformSerializer(stream,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+    def delete(self, request, id):
+        stream = StreamPlatform.objects.get(id=id)
+        stream.delete()
+        return Response("stream deleted")
+
+class WatchListAV(APIView):
     def get(self,request,*args,**kwargs):
-        movies = Movie.objects.all()
-        serializer = MovieSerializer(movies, many=True)
+        movies = WatchList.objects.all()
+        serializer = WatchListSerializer(movies, many=True)
         return Response(serializer.data)
 
     def post(self,request,*args,**kwargs):
 
-        serializer = MovieSerializer(data = request.data)
+        serializer = WatchListSerializer(data = request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data,status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors,status = status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
 
-class MovieDetail(APIView):
+class WatchListDetail(APIView):
 
     def get(self,request, id, *args,**kwargs):
         try:
-            movie = Movie.objects.get(id=id)
-        except Movie.DoesNotExist:
+            movie = WatchList.objects.get(id=id)
+        except WatchList.DoesNotExist:
             return Response({'error':"Movie Not Found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = MovieSerializer(movie)
+        serializer = WatchListSerializer(movie)
         return Response(serializer.data)
 
     def put(self, request, id, *args, **kwargs):
 
         try:
-            movie = Movie.objects.get(id=id)
-        except Movie.DoesNotExist:
+            movie = WatchList.objects.get(id=id)
+        except WatchList.DoesNotExist:
             return Response({'error': "Movie Not Found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = MovieSerializer(movie, data=request.data )
+        serializer = WatchListSerializer(movie, data=request.data )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -50,8 +84,8 @@ class MovieDetail(APIView):
 
     def delete(self,request,id,*args,**kwargs):
         try:
-            movie = Movie.objects.get(id=id)
-        except Movie.DoesNotExist:
+            movie = WatchList.objects.get(id=id)
+        except WatchList.DoesNotExist:
             return Response({'error': "Movie Not Found"}, status=status.HTTP_404_NOT_FOUND)
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
